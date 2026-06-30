@@ -31,8 +31,9 @@
       width: 100%;
       height: 100%;
       z-index: 0;
-      pointer-events: none;   /* allow clicks to pass through to cards */
+      pointer-events: none;
       display: block;
+      background: black; /* ensure pure black behind */
     }
 
     /* ---- main card – glassy overlay, clickable area on top ---- */
@@ -41,43 +42,55 @@
       z-index: 10;
       width: 100%;
       max-width: 400px;
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(3px);
-      -webkit-backdrop-filter: blur(3px);
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
       border-radius: 48px;
       padding: 32px 24px 40px;
-      box-shadow: 0 20px 40px rgba(255, 0, 0, 0.25), 0 0 0 1px rgba(255, 0, 0, 0.2);
-      border: 1px solid rgba(255, 0, 0, 0.15);
-      transition: box-shadow 0.2s;
+      box-shadow: 0 20px 40px rgba(255, 0, 0, 0.15), 0 0 0 1px rgba(255, 0, 0, 0.15);
+      border: 1px solid rgba(255, 0, 0, 0.1);
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
-    /* ---- circle logo (top) ---- */
+    /* ---- circle logo (top) with image ---- */
     .logo-circle {
-      width: 100px;
-      height: 100px;
+      width: 110px;
+      height: 110px;
       border-radius: 50%;
       background: black;
       border: 3px solid #e60000;
-      box-shadow: 0 0 20px rgba(230, 0, 0, 0.5);
+      box-shadow: 0 0 25px rgba(230, 0, 0, 0.5);
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-bottom: 32px;
+      margin-bottom: 12px;
       flex-shrink: 0;
+      overflow: hidden;   /* ensures image stays in circle */
     }
 
-    .logo-text {
-      font-size: 2.2rem;
-      font-weight: 700;
-      letter-spacing: 4px;
+    .logo-circle img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;  /* makes the image fill circle beautifully */
+      display: block;
+    }
+
+    /* ---- welcome sign under logo ---- */
+    .welcome-sign {
       color: #e60000;
+      font-size: 1.2rem;
+      font-weight: 500;
+      letter-spacing: 3px;
       text-shadow: 0 0 12px #e60000, 0 0 30px #990000;
-      background: black;
-      padding: 0 6px;
-      line-height: 1;
+      margin-bottom: 28px;
+      background: rgba(0,0,0,0.5);
+      padding: 6px 18px;
+      border-radius: 40px;
+      border: 1px solid rgba(230, 0, 0, 0.3);
+      backdrop-filter: blur(2px);
+      text-align: center;
     }
 
     /* ---- 3 red boxes container ---- */
@@ -138,7 +151,7 @@
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.35s ease, padding 0.3s ease, margin 0.3s ease;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.4);
       border-radius: 20px;
       margin-top: 0;
       padding: 0 12px;
@@ -189,7 +202,7 @@
       box-shadow: 0 0px 0 #330000;
     }
 
-    /* box expanded state – subtle change */
+    /* box expanded state */
     .box.expanded {
       box-shadow: 0 6px 0 #660000, 0 0 20px rgba(255, 0, 0, 0.6);
       border-color: #ff6666;
@@ -199,9 +212,8 @@
       transform: rotate(45deg);
     }
 
-    /* spacing when content visible */
     .box-content-open {
-      max-height: 300px;        /* enough for content */
+      max-height: 300px;
       padding: 4px 12px 12px;
       margin-top: 12px;
       border-bottom: 1px solid #cc3333;
@@ -240,12 +252,13 @@
         border-radius: 36px;
       }
       .logo-circle {
-        width: 80px;
-        height: 80px;
+        width: 90px;
+        height: 90px;
       }
-      .logo-text {
-        font-size: 1.8rem;
-        letter-spacing: 3px;
+      .welcome-sign {
+        font-size: 1rem;
+        padding: 4px 14px;
+        letter-spacing: 2px;
       }
       .box {
         font-size: 1.1rem;
@@ -257,16 +270,6 @@
     .visit-card * {
       pointer-events: auto;
     }
-
-    /* small fix for anchor inside box */
-    .box a {
-      pointer-events: auto;
-      color: white;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
   </style>
 </head>
 <body>
@@ -277,10 +280,13 @@
   <!-- MAIN VISIT CARD -->
   <div class="visit-card">
 
-    <!-- circle logo top -->
+    <!-- circle logo with image -->
     <div class="logo-circle">
-      <span class="logo-text">⏣</span>
+      <img src="https://umbphotos.ag/images/21ef2433a8c899057453b8e522bdc4da.jpg" alt="METFOX logo">
     </div>
+
+    <!-- welcome sign -->
+    <div class="welcome-sign">WELCOME TO METFOX</div>
 
     <!-- 3 boxes -->
     <div class="box-grid">
@@ -328,13 +334,15 @@
     (function() {
       'use strict';
 
-      // ----- MATRIX ANIMATION (letters: m e t f o x) -----
+      // ----- MATRIX ANIMATION (letters: m e t f o x) slower by 5% -----
       const canvas = document.getElementById('matrixCanvas');
       const ctx = canvas.getContext('2d');
       let width, height, columns, drops;
-      const chars = ['m', 'e', 't', 'f', 'o', 'x']; // only METFOX
+      const chars = ['m', 'e', 't', 'f', 'o', 'x'];
       const fontSize = 20;
       let animationFrame;
+      // speed factor: 0.95 => 5% slower (drops increment less frequently)
+      const SPEED_FACTOR = 0.95; 
 
       function resizeCanvas() {
         width = window.innerWidth;
@@ -346,9 +354,12 @@
       }
 
       function drawMatrix() {
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        // pure black background, no fade trail (full black)
+        ctx.fillStyle = 'black';
         ctx.fillRect(0, 0, width, height);
-        ctx.fillStyle = '#e60000';   // red
+
+        // red letters
+        ctx.fillStyle = '#e60000';
         ctx.font = fontSize + 'px monospace';
         ctx.shadowColor = '#ff0000';
         ctx.shadowBlur = 6;
@@ -358,10 +369,16 @@
           const x = i * fontSize;
           const y = drops[i] * fontSize;
           ctx.fillText(char, x, y);
+          
+          // slower: only increment drops with SPEED_FACTOR probability
+          if (Math.random() < SPEED_FACTOR) {
+            drops[i]++;
+          }
+          
+          // reset if off screen (with randomness)
           if (y > height && Math.random() > 0.975) {
             drops[i] = 0;
           }
-          drops[i]++;
         }
         animationFrame = requestAnimationFrame(drawMatrix);
       }
@@ -378,7 +395,7 @@
 
       startMatrix();
 
-      // ----- BOX INTERACTIONS -----
+      // ----- BOX INTERACTIONS (same as before) -----
 
       // 1. CONTACT BOX → redirect to example.com
       const contactBox = document.getElementById('boxContact');
@@ -386,7 +403,7 @@
         window.location.href = 'https://example.com';
       });
 
-      // 2. ELEMENT expand / collapse (with close button)
+      // 2. ELEMENT expand / collapse
       const elementBox = document.getElementById('boxElement');
       const elementContent = document.getElementById('elementContent');
       const closeElementBtn = document.getElementById('closeElement');
@@ -404,7 +421,6 @@
       }
 
       elementBox.addEventListener('click', function(e) {
-        // if click on close button inside content, ignore (handled by close btn)
         if (e.target.closest('.close-btn')) return;
         const isOpen = elementContent.classList.contains('box-content-open');
         toggleElement(!isOpen);
@@ -415,13 +431,12 @@
         toggleElement(false);
       });
 
-      // update the contact link inside element (example.com)
       document.getElementById('elementContactLink').addEventListener('click', function(e) {
         e.preventDefault();
         window.location.href = 'https://example.com';
       });
 
-      // 3. WORK expand / collapse (with close button)
+      // 3. WORK expand / collapse
       const workBox = document.getElementById('boxWork');
       const workContent = document.getElementById('workContent');
       const closeWorkBtn = document.getElementById('closeWork');
@@ -449,11 +464,7 @@
         toggleWork(false);
       });
 
-      // optional: keep textarea content if user types (no extra action)
-
-      // ----- extra: close other when opening? not required, keep independent -----
-
-      console.log('METFOX visit card ready.');
+      console.log('METFOX visit card ready. (slower matrix, black bg, welcome sign, logo image)');
     })();
   </script>
 </body>
