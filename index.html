@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>METFOX · visit card</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: black;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ---- matrix canvas (full bleed, behind everything) ---- */
+    #matrixCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;   /* allow clicks to pass through to cards */
+      display: block;
+    }
+
+    /* ---- main card – glassy overlay, clickable area on top ---- */
+    .visit-card {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 400px;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      border-radius: 48px;
+      padding: 32px 24px 40px;
+      box-shadow: 0 20px 40px rgba(255, 0, 0, 0.25), 0 0 0 1px rgba(255, 0, 0, 0.2);
+      border: 1px solid rgba(255, 0, 0, 0.15);
+      transition: box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ---- circle logo (top) ---- */
+    .logo-circle {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: black;
+      border: 3px solid #e60000;
+      box-shadow: 0 0 20px rgba(230, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 32px;
+      flex-shrink: 0;
+    }
+
+    .logo-text {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: #e60000;
+      text-shadow: 0 0 12px #e60000, 0 0 30px #990000;
+      background: black;
+      padding: 0 6px;
+      line-height: 1;
+    }
+
+    /* ---- 3 red boxes container ---- */
+    .box-grid {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* base box style – red theme */
+    .box {
+      background: #b30000;
+      background: linear-gradient(145deg, #cc0000, #990000);
+      border-radius: 30px;
+      padding: 16px 20px;
+      box-shadow: 0 6px 0 #660000, 0 10px 20px rgba(255, 0, 0, 0.3);
+      border: 1px solid #ff3333;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      color: white;
+      font-weight: 600;
+      font-size: 1.3rem;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 0 #550000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .box:active {
+      transform: scale(0.97);
+      box-shadow: 0 2px 0 #660000;
+    }
+
+    .box-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .box-icon {
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+
+    .expand-indicator {
+      font-size: 1.8rem;
+      font-weight: 300;
+      opacity: 0.8;
+      transition: transform 0.2s;
+    }
+
+    /* ---- expandable content inside boxes ---- */
+    .box-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.3s ease, margin 0.3s ease;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 20px;
+      margin-top: 0;
+      padding: 0 12px;
+      color: #fff0f0;
+      font-weight: 400;
+      font-size: 1rem;
+      text-shadow: none;
+      letter-spacing: 0.3px;
+      border-left: 2px solid #ff4444;
+      border-right: 2px solid #ff4444;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .box-content-inner {
+      padding: 12px 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .box-content a {
+      color: #ffaaaa;
+      text-decoration: underline;
+      font-weight: 500;
+      word-break: break-all;
+    }
+
+    .box-content button.close-btn {
+      align-self: flex-end;
+      background: #660000;
+      border: none;
+      color: white;
+      font-size: 1rem;
+      padding: 6px 18px;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 0 #330000;
+      transition: 0.1s ease;
+      letter-spacing: 0.5px;
+      border: 1px solid #aa3333;
+      margin-top: 4px;
+    }
+
+    .box-content button.close-btn:active {
+      transform: scale(0.94);
+      box-shadow: 0 0px 0 #330000;
+    }
+
+    /* box expanded state – subtle change */
+    .box.expanded {
+      box-shadow: 0 6px 0 #660000, 0 0 20px rgba(255, 0, 0, 0.6);
+      border-color: #ff6666;
+    }
+
+    .box.expanded .expand-indicator {
+      transform: rotate(45deg);
+    }
+
+    /* spacing when content visible */
+    .box-content-open {
+      max-height: 300px;        /* enough for content */
+      padding: 4px 12px 12px;
+      margin-top: 12px;
+      border-bottom: 1px solid #cc3333;
+    }
+
+    /* work textarea style */
+    .work-textarea {
+      width: 100%;
+      background: #1a0000;
+      border: 1px solid #aa3333;
+      border-radius: 16px;
+      padding: 12px;
+      color: #ffcccc;
+      font-size: 0.95rem;
+      resize: vertical;
+      min-height: 80px;
+      font-family: 'Segoe UI', monospace;
+      outline: none;
+      transition: 0.15s;
+    }
+
+    .work-textarea:focus {
+      border-color: #ff6666;
+      box-shadow: 0 0 12px #cc0000;
+    }
+
+    .work-textarea::placeholder {
+      color: #aa6666;
+      font-style: italic;
+    }
+
+    /* small screen tweaks */
+    @media (max-width: 480px) {
+      .visit-card {
+        padding: 24px 16px 32px;
+        border-radius: 36px;
+      }
+      .logo-circle {
+        width: 80px;
+        height: 80px;
+      }
+      .logo-text {
+        font-size: 1.8rem;
+        letter-spacing: 3px;
+      }
+      .box {
+        font-size: 1.1rem;
+        padding: 14px 16px;
+      }
+    }
+
+    /* preserve clickability on canvas overlay */
+    .visit-card * {
+      pointer-events: auto;
+    }
+
+    /* small fix for anchor inside box */
+    .box a {
+      pointer-events: auto;
+      color: white;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Matrix Canvas (falling METFOX letters, red) -->
+  <canvas id="matrixCanvas"></canvas>
+
+  <!-- MAIN VISIT CARD -->
+  <div class="visit-card">
+
+    <!-- circle logo top -->
+    <div class="logo-circle">
+      <span class="logo-text">⏣</span>
+    </div>
+
+    <!-- 3 boxes -->
+    <div class="box-grid">
+
+      <!-- BOX 1: BOT / CONTACT (link) -->
+      <div class="box" id="boxContact">
+        <span class="box-label">
+          <span class="box-icon">🤖</span> BOT / CONTACT
+        </span>
+        <span class="expand-indicator">↗</span>
+      </div>
+
+      <!-- BOX 2: ELEMENT (expandable with contact + close) -->
+      <div class="box" id="boxElement">
+        <span class="box-label">
+          <span class="box-icon">⚡</span> ELEMENT
+        </span>
+        <span class="expand-indicator">+</span>
+      </div>
+      <div class="box-content" id="elementContent">
+        <div class="box-content-inner">
+          <span>📬 contact: <a href="#" id="elementContactLink">example.com</a></span>
+          <button class="close-btn" id="closeElement">✕ close</button>
+        </div>
+      </div>
+
+      <!-- BOX 3: WORK (expandable with textarea) -->
+      <div class="box" id="boxWork">
+        <span class="box-label">
+          <span class="box-icon">🛠️</span> WORK
+        </span>
+        <span class="expand-indicator">+</span>
+      </div>
+      <div class="box-content" id="workContent">
+        <div class="box-content-inner">
+          <textarea class="work-textarea" placeholder="Write work regalements … (e.g. projects, skills)"></textarea>
+          <button class="close-btn" id="closeWork">✕ close</button>
+        </div>
+      </div>
+
+    </div> <!-- end box-grid -->
+  </div> <!-- end visit-card -->
+
+  <script>
+    (function() {
+      'use strict';
+
+      // ----- MATRIX ANIMATION (letters: m e t f o x) -----
+      const canvas = document.getElementById('matrixCanvas');
+      const ctx = canvas.getContext('2d');
+      let width, height, columns, drops;
+      const chars = ['m', 'e', 't', 'f', 'o', 'x']; // only METFOX
+      const fontSize = 20;
+      let animationFrame;
+
+      function resizeCanvas() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+        columns = Math.floor(width / fontSize);
+        drops = new Array(columns).fill(1);
+      }
+
+      function drawMatrix() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, width, height);
+        ctx.fillStyle = '#e60000';   // red
+        ctx.font = fontSize + 'px monospace';
+        ctx.shadowColor = '#ff0000';
+        ctx.shadowBlur = 6;
+
+        for (let i = 0; i < drops.length; i++) {
+          const char = chars[Math.floor(Math.random() * chars.length)];
+          const x = i * fontSize;
+          const y = drops[i] * fontSize;
+          ctx.fillText(char, x, y);
+          if (y > height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+        animationFrame = requestAnimationFrame(drawMatrix);
+      }
+
+      function startMatrix() {
+        if (animationFrame) cancelAnimationFrame(animationFrame);
+        resizeCanvas();
+        drawMatrix();
+      }
+
+      window.addEventListener('resize', () => {
+        resizeCanvas();
+      });
+
+      startMatrix();
+
+      // ----- BOX INTERACTIONS -----
+
+      // 1. CONTACT BOX → redirect to example.com
+      const contactBox = document.getElementById('boxContact');
+      contactBox.addEventListener('click', function(e) {
+        window.location.href = 'https://example.com';
+      });
+
+      // 2. ELEMENT expand / collapse (with close button)
+      const elementBox = document.getElementById('boxElement');
+      const elementContent = document.getElementById('elementContent');
+      const closeElementBtn = document.getElementById('closeElement');
+
+      function toggleElement(expand) {
+        if (expand) {
+          elementBox.classList.add('expanded');
+          elementContent.classList.add('box-content-open');
+          elementBox.querySelector('.expand-indicator').textContent = '✕';
+        } else {
+          elementBox.classList.remove('expanded');
+          elementContent.classList.remove('box-content-open');
+          elementBox.querySelector('.expand-indicator').textContent = '+';
+        }
+      }
+
+      elementBox.addEventListener('click', function(e) {
+        // if click on close button inside content, ignore (handled by close btn)
+        if (e.target.closest('.close-btn')) return;
+        const isOpen = elementContent.classList.contains('box-content-open');
+        toggleElement(!isOpen);
+      });
+
+      closeElementBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleElement(false);
+      });
+
+      // update the contact link inside element (example.com)
+      document.getElementById('elementContactLink').addEventListener('click', function(e) {
+        e.preventDefault();
+        window.location.href = 'https://example.com';
+      });
+
+      // 3. WORK expand / collapse (with close button)
+      const workBox = document.getElementById('boxWork');
+      const workContent = document.getElementById('workContent');
+      const closeWorkBtn = document.getElementById('closeWork');
+
+      function toggleWork(expand) {
+        if (expand) {
+          workBox.classList.add('expanded');
+          workContent.classList.add('box-content-open');
+          workBox.querySelector('.expand-indicator').textContent = '✕';
+        } else {
+          workBox.classList.remove('expanded');
+          workContent.classList.remove('box-content-open');
+          workBox.querySelector('.expand-indicator').textContent = '+';
+        }
+      }
+
+      workBox.addEventListener('click', function(e) {
+        if (e.target.closest('.close-btn')) return;
+        const isOpen = workContent.classList.contains('box-content-open');
+        toggleWork(!isOpen);
+      });
+
+      closeWorkBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleWork(false);
+      });
+
+      // optional: keep textarea content if user types (no extra action)
+
+      // ----- extra: close other when opening? not required, keep independent -----
+
+      console.log('METFOX visit card ready.');
+    })();
+  </script>
+</body>
+</html>
