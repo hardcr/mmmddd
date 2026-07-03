@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>METFOX </title>
+  <title>METFOX · BOT</title>
   <style>
     * {
       margin: 0;
@@ -23,7 +23,7 @@
       overflow-x: hidden;
     }
 
-    /* ---- matrix canvas (full bleed, behind everything) ---- */
+    /* ---- matrix canvas (full bleed) ---- */
     #matrixCanvas {
       position: fixed;
       top: 0;
@@ -33,28 +33,28 @@
       z-index: 0;
       pointer-events: none;
       display: block;
-      background: black; /* ensure pure black behind */
+      background: black;
     }
 
-    /* ---- main card – glassy overlay, clickable area on top ---- */
+    /* ---- main card – glassy overlay ---- */
     .visit-card {
       position: relative;
       z-index: 10;
       width: 100%;
-      max-width: 400px;
-      background: rgba(0, 0, 0, 0.75);
+      max-width: 420px;
+      background: rgba(0, 0, 0, 0.78);
       backdrop-filter: blur(2px);
       -webkit-backdrop-filter: blur(2px);
       border-radius: 48px;
-      padding: 32px 24px 40px;
-      box-shadow: 0 20px 40px rgba(255, 0, 0, 0.15), 0 0 0 1px rgba(255, 0, 0, 0.15);
-      border: 1px solid rgba(255, 0, 0, 0.1);
+      padding: 28px 20px 36px;
+      box-shadow: 0 20px 40px rgba(255, 0, 0, 0.18), 0 0 0 1px rgba(255, 0, 0, 0.15);
+      border: 1px solid rgba(255, 0, 0, 0.12);
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
-    /* ---- circle logo (top) with image ---- */
+    /* ---- logo circle ---- */
     .logo-circle {
       width: 110px;
       height: 110px;
@@ -67,17 +67,16 @@
       align-items: center;
       margin-bottom: 12px;
       flex-shrink: 0;
-      overflow: hidden;   /* ensures image stays in circle */
+      overflow: hidden;
     }
-
     .logo-circle img {
       width: 100%;
       height: 100%;
-      object-fit: cover;  /*jjj */
+      object-fit: cover;
       display: block;
     }
 
-    /* ---- welcome sign under logo ---- */
+    /* ---- welcome sign ---- */
     .welcome-sign {
       color: #e60000;
       font-size: 1.2rem;
@@ -93,20 +92,20 @@
       text-align: center;
     }
 
-    /* ---- 3 red boxes container ---- */
+    /* ---- box grid ---- */
     .box-grid {
       width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
     }
 
-    /* base box style – red theme */
+    /* base box – solid red, classic feel */
     .box {
       background: #b30000;
       background: linear-gradient(145deg, #cc0000, #990000);
       border-radius: 30px;
-      padding: 16px 20px;
+      padding: 14px 20px;
       box-shadow: 0 6px 0 #660000, 0 10px 20px rgba(255, 0, 0, 0.3);
       border: 1px solid #ff3333;
       transition: all 0.2s ease;
@@ -114,7 +113,7 @@
       color: white;
       font-weight: 600;
       font-size: 1.3rem;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
       text-shadow: 0 2px 0 #550000;
       display: flex;
       justify-content: space-between;
@@ -122,23 +121,19 @@
       user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
-
     .box:active {
       transform: scale(0.97);
       box-shadow: 0 2px 0 #660000;
     }
-
     .box-label {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
-
     .box-icon {
-      font-size: 1.6rem;
+      font-size: 1.7rem;
       line-height: 1;
     }
-
     .expand-indicator {
       font-size: 1.8rem;
       font-weight: 300;
@@ -146,12 +141,12 @@
       transition: transform 0.2s;
     }
 
-    /* ---- expandable content inside boxes ---- */
+    /* ---- expandable content ---- */
     .box-content {
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.35s ease, padding 0.3s ease, margin 0.3s ease;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.45);
       border-radius: 20px;
       margin-top: 0;
       padding: 0 12px;
@@ -165,21 +160,18 @@
       width: 100%;
       box-sizing: border-box;
     }
-
     .box-content-inner {
       padding: 12px 6px;
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
-
     .box-content a {
       color: #ffaaaa;
       text-decoration: underline;
       font-weight: 500;
       word-break: break-all;
     }
-
     .box-content button.close-btn {
       align-self: flex-end;
       background: #660000;
@@ -196,59 +188,59 @@
       border: 1px solid #aa3333;
       margin-top: 4px;
     }
-
     .box-content button.close-btn:active {
       transform: scale(0.94);
       box-shadow: 0 0px 0 #330000;
     }
 
-    /* box expanded state */
     .box.expanded {
       box-shadow: 0 6px 0 #660000, 0 0 20px rgba(255, 0, 0, 0.6);
       border-color: #ff6666;
     }
-
     .box.expanded .expand-indicator {
       transform: rotate(45deg);
     }
-
     .box-content-open {
-      max-height: 300px;
+      max-height: 320px;
       padding: 4px 12px 12px;
       margin-top: 12px;
       border-bottom: 1px solid #cc3333;
     }
 
-    /* work textarea style */
+    /* ---- WORK textarea — official, highlighted ---- */
     .work-textarea {
       width: 100%;
-      background: #1a0000;
-      border: 1px solid #aa3333;
+      background: #1a0505;
+      border: 2px solid #cc4444;
       border-radius: 16px;
-      padding: 12px;
-      color: #ffcccc;
-      font-size: 0.95rem;
+      padding: 14px 16px;
+      color: #ffdddd;
+      font-size: 1rem;
       resize: vertical;
-      min-height: 80px;
-      font-family: 'Segoe UI', monospace;
+      min-height: 90px;
+      font-family: 'Segoe UI', 'Courier New', monospace;
       outline: none;
       transition: 0.15s;
+      box-shadow: 0 0 0 1px #aa3333, inset 0 0 8px rgba(200, 0, 0, 0.3);
+      font-weight: 400;
+      line-height: 1.5;
     }
-
     .work-textarea:focus {
       border-color: #ff6666;
-      box-shadow: 0 0 12px #cc0000;
+      box-shadow: 0 0 18px #cc0000, inset 0 0 12px rgba(255, 0, 0, 0.2);
+      background: #1f0808;
     }
-
     .work-textarea::placeholder {
-      color: #aa6666;
+      color: #bb7777;
       font-style: italic;
+      font-weight: 300;
+      letter-spacing: 0.3px;
     }
 
-    /* small screen tweaks */
+    /* responsive */
     @media (max-width: 480px) {
       .visit-card {
-        padding: 24px 16px 32px;
+        padding: 20px 14px 28px;
         border-radius: 36px;
       }
       .logo-circle {
@@ -262,11 +254,13 @@
       }
       .box {
         font-size: 1.1rem;
-        padding: 14px 16px;
+        padding: 12px 16px;
+      }
+      .box-icon {
+        font-size: 1.4rem;
       }
     }
 
-    /* preserve clickability on canvas overlay */
     .visit-card * {
       pointer-events: auto;
     }
@@ -274,75 +268,74 @@
 </head>
 <body>
 
-  <!-- Matrix Canvas (falling METFOX letters, red) -->
+  <!-- Matrix Canvas -->
   <canvas id="matrixCanvas"></canvas>
 
-  <!-- MAIN VISIT CARD -->
+  <!-- MAIN CARD -->
   <div class="visit-card">
 
-    <!-- circle logo with image -->
+    <!-- logo -->
     <div class="logo-circle">
-      <img src="https://umbphotos.ag/images/21ef2433a8c899057453b8e522bdc4da.jpg" alt="METFOX logo">
+      <img src="https://umbphotos.ag/images/21ef2433a8c899057453b8e522bdc4da.jpg" alt="METFOX">
     </div>
 
-    <!-- welcome sign -->
+    <!-- welcome -->
     <div class="welcome-sign">WELCOME TO METFOX</div>
 
     <!-- 3 boxes -->
     <div class="box-grid">
 
-      <!-- BOX 1: BOT / CONTACT (link) -->
-      <div class="box" id="boxContact">
+      <!-- BOX 1: BOT  (fox emoji at start & end) -->
+      <div class="box" id="boxBot">
         <span class="box-label">
-          <span class="box-icon">🤖</span> BOT / CONTACT
+          <span class="box-icon">🦊</span> BOT <span class="box-icon" style="margin-left:4px;">🦊</span>
         </span>
         <span class="expand-indicator">↗</span>
       </div>
 
-      <!-- BOX 2: ELEMENT (expandable with contact + close) -->
-      <div class="box" id="boxElement">
+      <!-- BOX 2: CONTACTS  (wizard + link) -->
+      <div class="box" id="boxContacts">
         <span class="box-label">
-          <span class="box-icon">⚡</span> ELEMENT
+          <span class="box-icon">🧙</span> CONTACTS
         </span>
         <span class="expand-indicator">+</span>
       </div>
-      <div class="box-content" id="elementContent">
+      <div class="box-content" id="contactsContent">
         <div class="box-content-inner">
-          <span>📬 contact: <a href="#" id="elementContactLink">@deepdotcat:matrix.org</a></span>
-          <button class="close-btn" id="closeElement">✕ close</button>
+          <span>📬 contact: <a href="#" id="contactsLink">rutor topic (example.com)</a></span>
+          <button class="close-btn" id="closeContacts">✕ close</button>
         </div>
       </div>
 
-      <!-- BOX 3: WORK (expandable with textarea) -->
+      <!-- BOX 3: WORK  (handshake + highlighted textarea) -->
       <div class="box" id="boxWork">
         <span class="box-label">
-          <span class="box-icon">🛠️</span> WORK
+          <span class="box-icon">🤝</span> WORK
         </span>
         <span class="expand-indicator">+</span>
       </div>
       <div class="box-content" id="workContent">
         <div class="box-content-inner">
-          <textarea class="work-textarea" placeholder="minimal deposit 500usd/ minimal pay per adrs 25usd/ trusted agent salary from 20k$/ contact element"></textarea>
+          <textarea class="work-textarea" placeholder="minimal deposit 500usd · minimal pay per adrs 25usd · trusted agent salary from 20k$ · contact element">minimal deposit 500usd / minimal pay per adrs 25usd / trusted agent salary from 20k$ / contact element</textarea>
           <button class="close-btn" id="closeWork">✕ close</button>
         </div>
       </div>
 
-    </div> <!-- end box-grid -->
-  </div> <!-- end visit-card -->
+    </div>
+  </div>
 
   <script>
     (function() {
       'use strict';
 
-      // ----- MATRIX ANIMATION (letters: m e t f o x) 5% -----
+      // ----- MATRIX (letters: m e t f o x) -----
       const canvas = document.getElementById('matrixCanvas');
       const ctx = canvas.getContext('2d');
       let width, height, columns, drops;
       const chars = ['m', 'e', 't', 'f', 'o', 'x'];
       const fontSize = 20;
       let animationFrame;
-     
-      const SPEED_FACTOR = 0.95; 
+      const SPEED_FACTOR = 0.95;
 
       function resizeCanvas() {
         width = window.innerWidth;
@@ -354,11 +347,8 @@
       }
 
       function drawMatrix() {
-        // pure black background, no fade trail (full black)
         ctx.fillStyle = 'black';
         ctx.fillRect(0, 0, width, height);
-
-        // red letters
         ctx.fillStyle = '#e60000';
         ctx.font = fontSize + 'px monospace';
         ctx.shadowColor = '#ff0000';
@@ -369,13 +359,9 @@
           const x = i * fontSize;
           const y = drops[i] * fontSize;
           ctx.fillText(char, x, y);
-          
-          // slower: only increment drops with SPEED_FACTOR probability
           if (Math.random() < SPEED_FACTOR) {
             drops[i]++;
           }
-          
-          // reset if off screen (with randomness)
           if (y > height && Math.random() > 0.975) {
             drops[i] = 0;
           }
@@ -388,58 +374,50 @@
         resizeCanvas();
         drawMatrix();
       }
-
-      window.addEventListener('resize', () => {
-        resizeCanvas();
-      });
-
+      window.addEventListener('resize', resizeCanvas);
       startMatrix();
 
-      // ----- BOX INTERACTIONS (same as before) -----
-
-      // 1. CONTACT BOX 
-      const contactBox = document.getElementById('boxContact');
-      contactBox.addEventListener('click', function(e) {
+      // ----- BOX 1: BOT (redirect) -----
+      document.getElementById('boxBot').addEventListener('click', function() {
         window.location.href = 'https://t.me/metfoxabot';
       });
 
-      // 2. ELEMENT expand / collapse
-      const elementBox = document.getElementById('boxElement');
-      const elementContent = document.getElementById('elementContent');
-      const closeElementBtn = document.getElementById('closeElement');
+      // ----- BOX 2: CONTACTS (expand / collapse) -----
+      const contactsBox = document.getElementById('boxContacts');
+      const contactsContent = document.getElementById('contactsContent');
+      const closeContacts = document.getElementById('closeContacts');
+      const contactsLink = document.getElementById('contactsLink');
 
-      function toggleElement(expand) {
+      function toggleContacts(expand) {
         if (expand) {
-          elementBox.classList.add('expanded');
-          elementContent.classList.add('box-content-open');
-          elementBox.querySelector('.expand-indicator').textContent = '✕';
+          contactsBox.classList.add('expanded');
+          contactsContent.classList.add('box-content-open');
+          contactsBox.querySelector('.expand-indicator').textContent = '✕';
         } else {
-          elementBox.classList.remove('expanded');
-          elementContent.classList.remove('box-content-open');
-          elementBox.querySelector('.expand-indicator').textContent = '+';
+          contactsBox.classList.remove('expanded');
+          contactsContent.classList.remove('box-content-open');
+          contactsBox.querySelector('.expand-indicator').textContent = '+';
         }
       }
 
-      elementBox.addEventListener('click', function(e) {
+      contactsBox.addEventListener('click', function(e) {
         if (e.target.closest('.close-btn')) return;
-        const isOpen = elementContent.classList.contains('box-content-open');
-        toggleElement(!isOpen);
+        const isOpen = contactsContent.classList.contains('box-content-open');
+        toggleContacts(!isOpen);
       });
-
-      closeElementBtn.addEventListener('click', function(e) {
+      closeContacts.addEventListener('click', function(e) {
         e.stopPropagation();
-        toggleElement(false);
+        toggleContacts(false);
       });
-
-      document.getElementById('elementContactLink').addEventListener('click', function(e) {
+      contactsLink.addEventListener('click', function(e) {
         e.preventDefault();
         window.location.href = 'https://example.com';
       });
 
-      // 3. WORK expand / collapse
+      // ----- BOX 3: WORK (expand / collapse) -----
       const workBox = document.getElementById('boxWork');
       const workContent = document.getElementById('workContent');
-      const closeWorkBtn = document.getElementById('closeWork');
+      const closeWork = document.getElementById('closeWork');
 
       function toggleWork(expand) {
         if (expand) {
@@ -458,13 +436,12 @@
         const isOpen = workContent.classList.contains('box-content-open');
         toggleWork(!isOpen);
       });
-
-      closeWorkBtn.addEventListener('click', function(e) {
+      closeWork.addEventListener('click', function(e) {
         e.stopPropagation();
         toggleWork(false);
       });
 
-      console.log('METFOX visit card ready. (slower matrix, black bg, welcome sign, logo image)');
+      console.log('✅ METFOX redesigned: BOT, CONTACTS, WORK (handshake, fox, wizard)');
     })();
   </script>
 </body>
